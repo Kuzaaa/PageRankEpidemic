@@ -1,5 +1,5 @@
-#ifndef PAGE_RANK_H
-#define PAGE_RANK_H
+#ifndef EPIDEMIC_H
+#define EPIDEMIC_H
 
 //path of the graph data file
 #define DATA_PATH "soc-Epinions1.txt"
@@ -49,7 +49,10 @@ vector* create_vector();
 void free_vector(vector* vect);
 
 //product between a sparse matrix (mat) and a vector (vect), stocked in a vector (res)
-void product_matrix_vector(transition_m* mat, vector* vect, vector* res);
+void product_matrix_vector_pageRank(transition_m* mat, vector* vect, vector* res);
+
+//product between a sparse matrix (mat) and a vector (vect), stocked in a vector (res) for adjency matrix
+void product_matrix_vector(transition_m* mat, vector* vect, vector* res)
 
 //applies the formula of the improved pageRank on the vector res : alpha * P + (1 - alpha) * G
 void improved_vector(vector* vect, vector* res, double alpha);
@@ -68,5 +71,14 @@ void write_result(vector* vect, int* tab_index, double alpha);
 
 //sort in decreasing order an array (tab) and its associated index (tab_ind) by merging method
 void sort_merge(int i, int j, double* tab, double* tmp, int* tab_ind, int* tab_ind_tmp);
+
+//Simulate an epidemic without vaccination
+void epidemicWithoutVaccination(transition_m* mat, double infectionRate, double curringRate, double infectedAtStartRate);
+
+//Simulate an epidemic with random vaccination
+void epidemicWithRandomVaccination(transition_m* mat, double infectionRate, double curringRate, double infectedAtStartRate);
+
+//Simulate an epidemic with pageRank vaccination
+void epidemicWithPageRankVaccination(transition_m* mat, double infectionRate, double curringRate, double infectedAtStartRate);
 
 #endif

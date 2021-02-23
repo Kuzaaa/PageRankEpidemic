@@ -1,4 +1,4 @@
-#include "pageRank.h"
+#include "epidemic.h"
 
 #include <stdio.h>
 #include <float.h>
@@ -29,7 +29,7 @@ int main(int argc, char const *argv[])
 
 		//repeat pageRank while the distance between the vectors is greater than PREC
 		while(dist > PREC) {
-			product_matrix_vector(mat, vect, res);
+			product_matrix_vector_pageRank(mat, vect, res);
 			improved_vector(vect, res, alpha);
 			normalize(res);
 			dist = distance(vect, res);

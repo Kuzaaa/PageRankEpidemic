@@ -1,10 +1,11 @@
-#include "pageRank.h"
+#include "epidemic.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <float.h>
 #include <math.h>
+#include <time.h>
 
 //creates a transition matrix dynamically by reading the graph file
 transition_m* create_transition_m() {
@@ -118,14 +119,21 @@ void free_vector(vector* vect) {
 }
 
 //product between a sparse matrix (mat) and a vector (vect), stocked in a vector (res)
-void product_matrix_vector(transition_m* mat, vector* vect, vector* res) {
+void product_matrix_vector_pageRank(transition_m* mat, vector* vect, vector* res) {
 	for(int i = 0; i < mat->nb_val; i++) {
 		res->val[mat->row[i]] += mat->val[i] * vect->val[mat->col[i]];
 	}
 }
 
+//product between a sparse matrix (mat) and a vector (vect), stocked in a vector (res) for adjency matrix
+void product_matrix_vector(transition_m* mat, vector* vect, vector* res) {
+	for(int i = 0; i < mat->nb_val; i++) {
+		res->val[mat->row[i]] += 1.0 * vect->val[mat->col[i]];
+	}
+}
+
 //applies the formula of the improved pageRank on the vector res : alpha * P + (1 - alpha) * G
-void improved_vector(vector* vect, vector* res, double alpha) {
+void improved_vector_pageRank(vector* vect, vector* res, double alpha) {
 	//sum the elements of vect
 	double sum = 0.0;
 	for(int i = 0; i < vect->nb_val; i++) {
@@ -139,6 +147,18 @@ void improved_vector(vector* vect, vector* res, double alpha) {
 	for(int i = 0; i < res->nb_val ; i++) {
 		res->val[i] = res->val[i] * alpha + coef;
 	}
+}
+
+
+void improved_vector(vector* vect, vector* res, double infectionRate, double curringRate) {
+	
+	double coeffAdd = 1 - curringRate;
+	double coeffMult = infectionRate * ( 1.0 - ( 0.5 * curringRate));
+	
+	for(int i = 0; i < res->nb_val ; i++) {
+		res->val[i] = res->val[i] * coeffMult + coeffAdd * vect->val[i];
+	}
+	
 }
 
 //normalize the vector res with the max value of the vector
@@ -253,3 +273,57 @@ void sort_merge(int i, int j, double* tab, double* tmp, int* tab_ind, int* tab_i
 		tab_ind[cpt] = tab_ind_tmp[cpt];
 	}
 }
+
+//Simulate an epidemic without vaccination
+void epidemicWithoutVaccination(transition_m* mat, double infectionRate, double curringRate, double infectedAtStartRate){
+	
+	srand(time(NULL));
+	int i, j, nbInfected;
+	double rand;
+	
+	FILE* file = NULL;
+	file = fopen("infectedIndivualsWithoutVaccination.txt", "w+");
+	
+	if (file==NULL){
+		fprintf(stderr, "Erreur : Probleme à l'ouverture du fichier.\n");
+		exit(EXIT_FAILURE);
+	}
+		
+	//create vectors
+	vector* vect = create_vector();
+	vector* res = create_vector();
+	
+	
+	for(i=0 ; i<vect->nb_val ; i++){
+		vect->val[i] = infectionAtStartRate;
+	}
+	
+	for(i=0 ; i<100 ; i++){
+		nbInfected = 0;
+		
+		product_matrix_vector(mat, vect, res);
+		improved_vector(vect, res, infectionRate, curringRate);
+		
+		for(j=0 ; j<res->nb_val ; j++){
+			rand = rand()/RAND_MAX;
+			if(rand < res->val[j]){
+				nbInfected++;
+			}
+		}
+		
+		//On écrit l'identifiant de la page et la chance de se trouver sur cette dernière
+		fprintf(file,"%d \t %d\n",i,nbInfected);
+	
+	}
+	
+	fclose(file);
+}
+
+//Simulate an epidemic with random vaccination
+void epidemicWithRandomVaccination(transition_m* mat, double infectionRate, double curringRate, double infectedAtStartRate){
+}
+
+//Simulate an epidemic with pageRank vaccination
+void epidemicWithPageRankVaccination(transition_m* mat, double infectionRate, double curringRate, double infectedAtStartRate){
+}
+

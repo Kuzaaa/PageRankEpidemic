@@ -278,8 +278,7 @@ void sort_merge(int i, int j, double* tab, double* tmp, int* tab_ind, int* tab_i
 void epidemicWithoutVaccination(transition_m* mat, double infectionRate, double curringRate, double infectedAtStartRate){
 	
 	srand(time(NULL));
-	int i, j, nbInfected;
-	double rand;
+	int i, j, nbInfected=0;
 	
 	FILE* file = NULL;
 	file = fopen("infectedIndivualsWithoutVaccination.txt", "w+");
@@ -295,28 +294,37 @@ void epidemicWithoutVaccination(transition_m* mat, double infectionRate, double 
 	
 	
 	for(i=0 ; i<vect->nb_val ; i++){
-		vect->val[i] = infectionAtStartRate;
+		vect->val[i] = infectedAtStartRate;
 	}
 	
-	for(i=0 ; i<100 ; i++){
+	for(j=0 ; j<res->nb_val ; j++){
+		if(rand()/(RAND_MAX+1.0) < vect->val[j]){
+			nbInfected++;
+		}
+	}
+		
+	fprintf(file,"   0 %d\n",nbInfected);
+		
+	for(i=1 ; i<=100 ; i++){
 		nbInfected = 0;
 		
 		product_matrix_vector(mat, vect, res);
 		improved_vector(vect, res, infectionRate, curringRate);
 		
 		for(j=0 ; j<res->nb_val ; j++){
-			rand = rand()/RAND_MAX;
-			if(rand < res->val[j]){
+			if(rand()/(RAND_MAX+1.0) < res->val[j]){
 				nbInfected++;
 			}
 		}
 		
-		//On écrit l'identifiant de la page et la chance de se trouver sur cette dernière
-		fprintf(file,"%d \t %d\n",i,nbInfected);
+		fprintf(file,"%4d %d\n",i,nbInfected);
 	
 	}
 	
 	fclose(file);
+	free_vector(vect);
+	free_vector(res);
+	
 }
 
 //Simulate an epidemic with random vaccination

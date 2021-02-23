@@ -52,10 +52,13 @@ void free_vector(vector* vect);
 void product_matrix_vector_pageRank(transition_m* mat, vector* vect, vector* res);
 
 //product between a sparse matrix (mat) and a vector (vect), stocked in a vector (res) for adjency matrix
-void product_matrix_vector(transition_m* mat, vector* vect, vector* res)
+void product_matrix_vector(transition_m* mat, vector* vect, vector* res);
 
 //applies the formula of the improved pageRank on the vector res : alpha * P + (1 - alpha) * G
-void improved_vector(vector* vect, vector* res, double alpha);
+void improved_vector_pageRank(vector* vect, vector* res, double alpha);
+
+//
+void improved_vector(vector* vect, vector* res, double infectionRate, double curringRate);
 
 //normalize the vector res with the max value of the vector
 void normalize(vector* res);

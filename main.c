@@ -12,7 +12,7 @@ int main(int argc, char const *argv[])
 	transition_m* mat = create_transition_m();
 	
 	//try different damping factors
-	for(double alpha = 0.1; alpha < 0.99; alpha += 0.1) {
+	/*for(double alpha = 0.1; alpha < 0.99; alpha += 0.1) {
 		
 		//create vectors
 		vector* vect = create_vector();
@@ -53,13 +53,17 @@ int main(int argc, char const *argv[])
 
 		//output
 		write_result(vect, tab_ind, alpha);
+		
+		
 
 		//free objects
 		free_vector(vect);
 		free_vector(res);
 		free(tab_ind);
 		free(tab_ind_tmp);
-	}
+	}*/
+	
+	epidemicWithoutVaccination(mat,0.2,0.24,0.05);
 
 	//free transition matrix
 	free_transition_m(mat);

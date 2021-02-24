@@ -64,6 +64,7 @@ int main(int argc, char const *argv[])
 	}*/
 	
 	epidemicWithoutVaccination(mat,0.2,0.24,0.05);
+	epidemicWithRandomVaccination(mat,0.2,0.24,0.05);
 
 	//free transition matrix
 	free_transition_m(mat);

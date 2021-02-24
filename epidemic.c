@@ -128,7 +128,9 @@ void product_matrix_vector_pageRank(transition_m* mat, vector* vect, vector* res
 //product between a sparse matrix (mat) and a vector (vect), stocked in a vector (res) for adjency matrix
 void product_matrix_vector(transition_m* mat, vector* vect, vector* res) {
 	for(int i = 0; i < mat->nb_val; i++) {
-		res->val[mat->row[i]] += 1.0 * vect->val[mat->col[i]];
+		if(mat->col[i] != -1) {
+			res->val[mat->row[i]] += 1.0 * vect->val[mat->col[i]];
+		}
 	}
 }
 
@@ -295,10 +297,8 @@ void epidemicWithoutVaccination(transition_m* mat, double infectionRate, double 
 	
 	for(i=0 ; i<vect->nb_val ; i++){
 		vect->val[i] = infectedAtStartRate;
-	}
-	
-	for(j=0 ; j<res->nb_val ; j++){
-		if(rand()/(RAND_MAX+1.0) < vect->val[j]){
+
+		if(rand()/(RAND_MAX+1.0) < infectedAtStartRate){
 			nbInfected++;
 		}
 	}
@@ -329,6 +329,70 @@ void epidemicWithoutVaccination(transition_m* mat, double infectionRate, double 
 
 //Simulate an epidemic with random vaccination
 void epidemicWithRandomVaccination(transition_m* mat, double infectionRate, double curringRate, double infectedAtStartRate){
+	srand(time(NULL));
+	int i, j, nbInfected=0;
+	
+	FILE* file = NULL;
+	file = fopen("infectedIndivualsWithRandomVaccination.txt", "w+");
+	
+	if (file==NULL){
+		fprintf(stderr, "Erreur : Probleme à l'ouverture du fichier.\n");
+		exit(EXIT_FAILURE);
+	}
+		
+	//create vectors
+	vector* vect = create_vector();
+	vector* res = create_vector();
+	
+	
+	for(i=0 ; i<vect->nb_val ; i++){
+		vect->val[i] = infectedAtStartRate;
+
+		//infected at start
+		if(rand()/(RAND_MAX+1.0) < infectedAtStartRate){
+			nbInfected++;
+		}
+
+		//vaccination at start
+		if(rand()/(RAND_MAX+1.0) < infectedAtStartRate){
+			for(j=0; j<mat->nb_val; j++) {
+				if(mat->col[j] == i) {
+					mat->col[j] = -1;
+				}
+			}
+		}
+	}
+		
+	fprintf(file,"   0 %d\n",nbInfected);
+		
+	for(i=1 ; i<=100 ; i++){
+		printf("%d\n",i);
+		nbInfected = 0;
+		
+		product_matrix_vector(mat, vect, res);
+		improved_vector(vect, res, infectionRate, curringRate);
+		
+		for(j=0 ; j<res->nb_val ; j++){
+			if(rand()/(RAND_MAX+1.0) < res->val[j]){
+				nbInfected++;
+			}
+
+			if(rand()/(RAND_MAX+1.0) < infectedAtStartRate){
+				for(int k=0; k<mat->nb_val; k++) {
+					if(mat->col[k] == j) {
+						mat->col[k] = -1;
+					}
+				}
+			}
+		}
+		
+		fprintf(file,"%4d %d\n",i,nbInfected);
+	
+	}
+	
+	fclose(file);
+	free_vector(vect);
+	free_vector(res);
 }
 
 //Simulate an epidemic with pageRank vaccination

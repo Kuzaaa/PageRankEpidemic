@@ -10,6 +10,8 @@
 //path for the result file
 #define RES_PATH "result_%.1f.txt"
 
+#define PREC 1.0e-10
+
 /* 
 transition matrix (sparse matrix) with :
 	nb_val the number of values different of zero

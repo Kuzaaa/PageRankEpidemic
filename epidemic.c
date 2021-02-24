@@ -366,7 +366,6 @@ void epidemicWithRandomVaccination(transition_m* mat, double infectionRate, doub
 	fprintf(file,"   0 %d\n",nbInfected);
 		
 	for(i=1 ; i<=100 ; i++){
-		printf("%d\n",i);
 		nbInfected = 0;
 		
 		product_matrix_vector(mat, vect, res);
@@ -375,14 +374,6 @@ void epidemicWithRandomVaccination(transition_m* mat, double infectionRate, doub
 		for(j=0 ; j<res->nb_val ; j++){
 			if(rand()/(RAND_MAX+1.0) < res->val[j]){
 				nbInfected++;
-			}
-
-			if(rand()/(RAND_MAX+1.0) < infectedAtStartRate){
-				for(int k=0; k<mat->nb_val; k++) {
-					if(mat->col[k] == j) {
-						mat->col[k] = -1;
-					}
-				}
 			}
 		}
 		
@@ -397,5 +388,105 @@ void epidemicWithRandomVaccination(transition_m* mat, double infectionRate, doub
 
 //Simulate an epidemic with pageRank vaccination
 void epidemicWithPageRankVaccination(transition_m* mat, double infectionRate, double curringRate, double infectedAtStartRate){
+	srand(time(NULL));
+	int i, j, nbInfected=0;
+	
+	FILE* file = NULL;
+	file = fopen("infectedIndivualsWithPageRankVaccination.txt", "w+");
+	
+	if (file==NULL){
+		fprintf(stderr, "Erreur : Probleme à l'ouverture du fichier.\n");
+		exit(EXIT_FAILURE);
+	}
+		
+	//create vectors
+	vector* vect = create_vector();
+	vector* res = create_vector();
+
+	//distance between the 2 vectors
+	double dist = 1.0;
+
+	double alpha = 0.8;
+
+	for(i=0 ; i<vect->nb_val ; i++){
+		vect->val[i] = infectedAtStartRate;
+
+		//infected at start
+		if(rand()/(RAND_MAX+1.0) < infectedAtStartRate){
+			nbInfected++;
+		}
+	}
+
+	while(dist > PREC) {
+		product_matrix_vector_pageRank(mat, vect, res);
+		improved_vector_pageRank(vect, res, alpha);
+		normalize(res);
+		dist = distance(vect, res);
+		copy_result(vect, res);
+	}
+
+	//array to identify the nodes after the sort
+	int* tab_ind = malloc(NB_NODE * sizeof(int));
+	int* tab_ind_tmp = malloc(NB_NODE * sizeof(int));
+
+	//initialize index
+	for(int i = 0; i < NB_NODE; i++) {
+		tab_ind[i] = i;
+	}
+
+	//sort by decreasing order
+	sort_merge(0, vect->nb_val - 1, vect->val, res->val, tab_ind, tab_ind_tmp);
+
+	int nbVaccin = (int)(infectedAtStartRate * vect->nb_val / 100);
+
+	for(i=0; i<nbVaccin; i++){
+		printf("%d\n", tab_ind[i]);
+		for(j=0; j<mat->nb_val; j++) {
+			if(mat->col[j] == tab_ind[i]) {
+				mat->col[j] = -1;
+			}
+		}
+	}
+	
+	free_vector(vect);
+	free_vector(res);
+	free(tab_ind);
+	free(tab_ind_tmp);
+
+	//create vectors
+	vect = create_vector();
+	res = create_vector();
+
+	for(i=0 ; i<vect->nb_val ; i++){
+		vect->val[i] = infectedAtStartRate;
+
+		//infected at start
+		if(rand()/(RAND_MAX+1.0) < infectedAtStartRate){
+			nbInfected++;
+		}
+	}
+		
+	fprintf(file,"   0 %d\n",nbInfected);
+		
+	for(i=1 ; i<=100 ; i++){
+		//printf("%d\n", i);
+		nbInfected = 0;
+		
+		product_matrix_vector(mat, vect, res);
+		improved_vector(vect, res, infectionRate, curringRate);
+		
+		for(j=0 ; j<res->nb_val ; j++){
+			if(rand()/(RAND_MAX+1.0) < res->val[j]){
+				nbInfected++;
+			}
+		}
+		
+		fprintf(file,"%4d %d\n",i,nbInfected);
+	
+	}
+	
+	fclose(file);
+	free_vector(vect);
+	free_vector(res);
 }
 

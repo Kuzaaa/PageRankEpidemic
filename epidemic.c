@@ -296,7 +296,7 @@ void epidemicWithoutVaccination(transition_m* mat, double infectionRate, double 
 	fprintf(file,"   0 %d\n",nbInfected);
 		
 	//simulation
-	for(i=1 ; i<=1000 ; i++){
+	for(i=1 ; i<=300 ; i++){
 		nbInfected = 0;
 		
 		product_matrix_vector(mat, vect, res);
@@ -358,7 +358,7 @@ void epidemicWithRandomVaccination(transition_m* mat, double infectionRate, doub
 	fprintf(file,"   0 %d\n",nbInfected);
 		
 	//simulation
-	for(i=1 ; i<=1000 ; i++){
+	for(i=1 ; i<=300 ; i++){
 		nbInfected = 0;
 		
 		product_matrix_vector(mat, vect, res);
@@ -465,7 +465,7 @@ void epidemicWithPageRankVaccination(transition_m* mat, double infectionRate, do
 	fprintf(file,"   0 %d\n",nbInfected);
 		
 	//simulation
-	for(i=1 ; i<=1000 ; i++){
+	for(i=1 ; i<=300 ; i++){
 		nbInfected = 0;
 		
 		product_matrix_vector(mat, vect, res);

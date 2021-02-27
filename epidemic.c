@@ -151,7 +151,7 @@ void improved_vector_pageRank(vector* vect, vector* res, double alpha) {
 	}
 }
 
-
+//applies the formula of the transition matrix on the vector res : (1 - delta) * I + beta * (1 - 1/2 delta) * Adj
 void improved_vector(vector* vect, vector* res, double infectionRate, double curringRate) {
 	
 	double coeffAdd = 1 - curringRate;
@@ -199,18 +199,6 @@ void copy_result(vector* vect, vector* res) {
 		vect->val[i] = res->val[i];
 		res->val[i] = 0.0;
 	}
-}
-
-//write the node number and the probability associed in the result file (format result_alpha.txt)
-void write_result(vector* vect, int* tab_ind, double alpha) {
-	char path[20];
-	snprintf(path, 20, RES_PATH, alpha);
-	FILE* fp;
-	fp = fopen(path, "w");
-	for(int i = 0; i < vect->nb_val; i++) {
-		fprintf(fp, "%d, %.*f\n", tab_ind[i], DBL_DIG - 1, vect->val[i]);
-	}
-	fclose(fp);
 }
 
 //sort in decreasing order an array (tab) and its associated index (tab_ind) by merging method
@@ -282,6 +270,7 @@ void epidemicWithoutVaccination(transition_m* mat, double infectionRate, double 
 	srand(time(NULL));
 	int i, j, nbInfected=0;
 	
+	//open result file
 	FILE* file = NULL;
 	file = fopen("infectedIndivualsWithoutVaccination.txt", "w+");
 	
@@ -295,6 +284,7 @@ void epidemicWithoutVaccination(transition_m* mat, double infectionRate, double 
 	vector* res = create_vector();
 	
 	
+	//init vector
 	for(i=0 ; i<vect->nb_val ; i++){
 		vect->val[i] = infectedAtStartRate;
 
@@ -305,7 +295,8 @@ void epidemicWithoutVaccination(transition_m* mat, double infectionRate, double 
 		
 	fprintf(file,"   0 %d\n",nbInfected);
 		
-	for(i=1 ; i<=100 ; i++){
+	//simulation
+	for(i=1 ; i<=1000 ; i++){
 		nbInfected = 0;
 		
 		product_matrix_vector(mat, vect, res);
@@ -332,6 +323,7 @@ void epidemicWithRandomVaccination(transition_m* mat, double infectionRate, doub
 	srand(time(NULL));
 	int i, j, nbInfected=0;
 	
+	//open result file
 	FILE* file = NULL;
 	file = fopen("infectedIndivualsWithRandomVaccination.txt", "w+");
 	
@@ -344,7 +336,7 @@ void epidemicWithRandomVaccination(transition_m* mat, double infectionRate, doub
 	vector* vect = create_vector();
 	vector* res = create_vector();
 	
-	
+	//init vector
 	for(i=0 ; i<vect->nb_val ; i++){
 		vect->val[i] = infectedAtStartRate;
 
@@ -365,7 +357,8 @@ void epidemicWithRandomVaccination(transition_m* mat, double infectionRate, doub
 		
 	fprintf(file,"   0 %d\n",nbInfected);
 		
-	for(i=1 ; i<=100 ; i++){
+	//simulation
+	for(i=1 ; i<=1000 ; i++){
 		nbInfected = 0;
 		
 		product_matrix_vector(mat, vect, res);
@@ -391,6 +384,7 @@ void epidemicWithPageRankVaccination(transition_m* mat, double infectionRate, do
 	srand(time(NULL));
 	int i, j, nbInfected=0;
 	
+	//open result file
 	FILE* file = NULL;
 	file = fopen("infectedIndivualsWithPageRankVaccination.txt", "w+");
 	
@@ -403,11 +397,10 @@ void epidemicWithPageRankVaccination(transition_m* mat, double infectionRate, do
 	vector* vect = create_vector();
 	vector* res = create_vector();
 
-	//distance between the 2 vectors
 	double dist = 1.0;
-
 	double alpha = 0.8;
 
+	//init vector for pagerank
 	for(i=0 ; i<vect->nb_val ; i++){
 		vect->val[i] = infectedAtStartRate;
 
@@ -417,6 +410,7 @@ void epidemicWithPageRankVaccination(transition_m* mat, double infectionRate, do
 		}
 	}
 
+	//pageRank
 	while(dist > PREC) {
 		product_matrix_vector_pageRank(mat, vect, res);
 		improved_vector_pageRank(vect, res, alpha);
@@ -437,10 +431,11 @@ void epidemicWithPageRankVaccination(transition_m* mat, double infectionRate, do
 	//sort by decreasing order
 	sort_merge(0, vect->nb_val - 1, vect->val, res->val, tab_ind, tab_ind_tmp);
 
+	//number of nodes who will get the vaccine
 	int nbVaccin = (int)(infectedAtStartRate * vect->nb_val / 100);
 
+	//vaccine nodes with highest rank
 	for(i=0; i<nbVaccin; i++){
-		printf("%d\n", tab_ind[i]);
 		for(j=0; j<mat->nb_val; j++) {
 			if(mat->col[j] == tab_ind[i]) {
 				mat->col[j] = -1;
@@ -457,6 +452,7 @@ void epidemicWithPageRankVaccination(transition_m* mat, double infectionRate, do
 	vect = create_vector();
 	res = create_vector();
 
+	//init vector
 	for(i=0 ; i<vect->nb_val ; i++){
 		vect->val[i] = infectedAtStartRate;
 
@@ -468,8 +464,8 @@ void epidemicWithPageRankVaccination(transition_m* mat, double infectionRate, do
 		
 	fprintf(file,"   0 %d\n",nbInfected);
 		
-	for(i=1 ; i<=100 ; i++){
-		//printf("%d\n", i);
+	//simulation
+	for(i=1 ; i<=1000 ; i++){
 		nbInfected = 0;
 		
 		product_matrix_vector(mat, vect, res);

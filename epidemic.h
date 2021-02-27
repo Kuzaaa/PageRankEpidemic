@@ -7,9 +7,7 @@
 #define NB_NODE 75888
 //number of edges in the graph
 #define NB_EDGE 508837
-//path for the result file
-#define RES_PATH "result_%.1f.txt"
-
+//precision  for pageRank
 #define PREC 1.0e-10
 
 /* 
@@ -59,7 +57,7 @@ void product_matrix_vector(transition_m* mat, vector* vect, vector* res);
 //applies the formula of the improved pageRank on the vector res : alpha * P + (1 - alpha) * G
 void improved_vector_pageRank(vector* vect, vector* res, double alpha);
 
-//
+//applies the formula of the transition matrix on the vector res : (1 - delta) * I + beta * (1 - 1/2 delta) * Adj
 void improved_vector(vector* vect, vector* res, double infectionRate, double curringRate);
 
 //normalize the vector res with the max value of the vector
@@ -70,9 +68,6 @@ double distance(vector* vect, vector* res);
 
 //copy the vector res in the vector vect and set res to 0.0
 void copy_result(vector* vect, vector* res);
-
-//write the node number and the probability associed in the result file (format result_alpha.txt)
-void write_result(vector* vect, int* tab_index, double alpha);
 
 //sort in decreasing order an array (tab) and its associated index (tab_ind) by merging method
 void sort_merge(int i, int j, double* tab, double* tmp, int* tab_ind, int* tab_ind_tmp);
